@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  web:
+    name: Frontend (typecheck + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+  api:
+    name: API (tests de integración)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: empleonow
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      NODE_ENV: test
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/empleonow
+      JWT_ACCESS_SECRET: ci-access-secret-at-least-16-chars
+      JWT_REFRESH_SECRET: ci-refresh-secret-at-least-16-chars
+      DATA_ENCRYPTION_KEY: ci-data-encryption-key-at-least-32-chars
+      CLIENT_ORIGIN: http://localhost:5173
+      UPLOAD_DIR: ./uploads
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx prisma migrate deploy
+      - run: npm test
+
+  e2e:
+    name: E2E (mobile + desktop)
+    runs-on: ubuntu-latest
+    needs: api
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: empleonow
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=12
+    env:
+      NODE_ENV: test
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/empleonow
+      JWT_ACCESS_SECRET: ci-access-secret-at-least-16-chars
+      JWT_REFRESH_SECRET: ci-refresh-secret-at-least-16-chars
+      DATA_ENCRYPTION_KEY: ci-data-encryption-key-at-least-32-chars
+      CLIENT_ORIGIN: http://localhost:5173
+      UPLOAD_DIR: ./uploads
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+      - run: npm ci
+      - run: npm ci
+        working-directory: server
+      - run: npx prisma generate
+        working-directory: server
+      - run: npx prisma migrate deploy
+        working-directory: server
+      - name: Escribir server/.env para los webServer de Playwright
+        run: |
+          cat > server/.env <<EOF
+          NODE_ENV=test
+          PORT=3000
+          DATABASE_URL=${{ env.DATABASE_URL }}
+          JWT_ACCESS_SECRET=${{ env.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET=${{ env.JWT_REFRESH_SECRET }}
+          DATA_ENCRYPTION_KEY=${{ env.DATA_ENCRYPTION_KEY }}
+          CLIENT_ORIGIN=${{ env.CLIENT_ORIGIN }}
+          UPLOAD_DIR=${{ env.UPLOAD_DIR }}
+          EOF
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  security:
+    name: Seguridad (secretos + dependencias)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: npm audit (críticas)
+        run: npm audit --audit-level=critical || true
+      - name: npm audit API (críticas)
+        working-directory: server
+        run: npm audit --audit-level=critical --omit=dev || true
+      - name: Trivy (vulnerabilidades críticas del repo)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
