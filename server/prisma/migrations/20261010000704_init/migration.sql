@@ -1,0 +1,286 @@
+-- CreateTable
+CREATE TABLE `ADMIN` (
+    `IDAdmin` INTEGER NOT NULL AUTO_INCREMENT,
+    `Correo` VARCHAR(191) NOT NULL,
+    `Contrasena` VARCHAR(191) NOT NULL,
+    `Estado` VARCHAR(191) NOT NULL DEFAULT 'activo',
+
+    UNIQUE INDEX `ADMIN_Correo_key`(`Correo`),
+    PRIMARY KEY (`IDAdmin`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EMPRESA` (
+    `IDEmpresa` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre_Empresa` VARCHAR(191) NOT NULL,
+    `NIT` VARCHAR(191) NOT NULL,
+    `telefono` VARCHAR(191) NULL,
+    `correo` VARCHAR(191) NOT NULL,
+    `contrasena` VARCHAR(191) NOT NULL,
+    `sector` VARCHAR(191) NULL,
+    `descripcion` VARCHAR(191) NULL,
+    `direccion` VARCHAR(191) NULL,
+    `Logo` VARCHAR(191) NULL,
+    `Estado` VARCHAR(191) NOT NULL DEFAULT 'activo',
+
+    UNIQUE INDEX `EMPRESA_NIT_key`(`NIT`),
+    UNIQUE INDEX `EMPRESA_correo_key`(`correo`),
+    PRIMARY KEY (`IDEmpresa`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `CV` (
+    `ID_CV` INTEGER NOT NULL AUTO_INCREMENT,
+    `Archivo` VARCHAR(191) NOT NULL,
+    `nombre` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`ID_CV`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `CERTIFICADO` (
+    `id_certificado` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(191) NOT NULL,
+    `archivo` VARCHAR(191) NOT NULL,
+    `id_postulante` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id_certificado`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `EXPERIENCIA` (
+    `IdExperiencia` INTEGER NOT NULL AUTO_INCREMENT,
+    `cargo` VARCHAR(191) NOT NULL,
+    `empresaAnterior` VARCHAR(191) NULL,
+    `Descripcion` VARCHAR(191) NULL,
+    `fecha_inicio` DATETIME(3) NULL,
+    `Fecha_fin` DATETIME(3) NULL,
+    `es_actual` BOOLEAN NOT NULL DEFAULT false,
+    `periodo_texto` VARCHAR(191) NULL,
+    `id_postulante` INTEGER NOT NULL,
+
+    PRIMARY KEY (`IdExperiencia`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `POSTULANTE` (
+    `IdPostulante` INTEGER NOT NULL AUTO_INCREMENT,
+    `Nombres` VARCHAR(191) NOT NULL,
+    `Apellidos` VARCHAR(191) NOT NULL,
+    `Correo` VARCHAR(191) NOT NULL,
+    `Contrasena` VARCHAR(191) NOT NULL,
+    `telefono` VARCHAR(191) NULL,
+    `foto` VARCHAR(191) NULL,
+    `ubicacion` VARCHAR(191) NULL,
+    `Estado` VARCHAR(191) NOT NULL DEFAULT 'activo',
+    `Fecha_Nacimiento` DATETIME(3) NULL,
+    `Fecha_creacion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `id_cv` INTEGER NULL,
+
+    UNIQUE INDEX `POSTULANTE_Correo_key`(`Correo`),
+    UNIQUE INDEX `POSTULANTE_id_cv_key`(`id_cv`),
+    PRIMARY KEY (`IdPostulante`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `FORMACION` (
+    `IdFormacion` INTEGER NOT NULL AUTO_INCREMENT,
+    `titulo` VARCHAR(191) NOT NULL,
+    `institucion` VARCHAR(191) NULL,
+    `nivelEstudio` VARCHAR(191) NULL,
+    `fecha_inicio` DATETIME(3) NULL,
+    `fecha_Grado` DATETIME(3) NULL,
+    `id_postulante` INTEGER NOT NULL,
+
+    PRIMARY KEY (`IdFormacion`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `HABILIDAD` (
+    `idHabil` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(191) NOT NULL,
+    `tipo` VARCHAR(191) NULL,
+    `nivel` VARCHAR(191) NULL,
+    `id_postulante` INTEGER NOT NULL,
+
+    PRIMARY KEY (`idHabil`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `POSTULACION` (
+    `IdPostulacion` INTEGER NOT NULL AUTO_INCREMENT,
+    `Titulo_de_postulacion` VARCHAR(191) NOT NULL,
+    `Descripcion_postulacion` VARCHAR(191) NULL,
+    `Cargo_solicitado` VARCHAR(191) NULL,
+    `estado` VARCHAR(191) NOT NULL DEFAULT 'pendiente',
+    `Fecha_creacion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `id_postulante` INTEGER NOT NULL,
+    `id_vacante` INTEGER NOT NULL,
+
+    UNIQUE INDEX `POSTULACION_id_postulante_id_vacante_key`(`id_postulante`, `id_vacante`),
+    PRIMARY KEY (`IdPostulacion`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `POST_VAC_FAV` (
+    `id_pos_vac_fav` INTEGER NOT NULL AUTO_INCREMENT,
+    `fec_guardado` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `notas` VARCHAR(191) NULL,
+    `id_postulante` INTEGER NOT NULL,
+    `id_vacante` INTEGER NOT NULL,
+
+    UNIQUE INDEX `POST_VAC_FAV_id_postulante_id_vacante_key`(`id_postulante`, `id_vacante`),
+    PRIMARY KEY (`id_pos_vac_fav`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `VACANTE` (
+    `IDvacantes` INTEGER NOT NULL AUTO_INCREMENT,
+    `cargo` VARCHAR(191) NOT NULL,
+    `departamento` VARCHAR(191) NULL,
+    `descripcion` VARCHAR(191) NULL,
+    `requisitos` VARCHAR(191) NULL,
+    `beneficios` VARCHAR(191) NULL,
+    `ubicacion` VARCHAR(191) NULL,
+    `salario` DECIMAL(10, 2) NULL,
+    `salario_texto` VARCHAR(191) NULL,
+    `modalidad` VARCHAR(191) NULL,
+    `tipoDeEmpleo` VARCHAR(191) NULL,
+    `tipoContrato` VARCHAR(191) NULL,
+    `descripcionContrato` VARCHAR(191) NULL,
+    `Fecha_contrato` DATETIME(3) NULL,
+    `Fecha_limite` DATETIME(3) NULL,
+    `Fecha_Publicacion` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `Estado` VARCHAR(191) NOT NULL DEFAULT 'activo',
+    `id_empresa` INTEGER NOT NULL,
+
+    PRIMARY KEY (`IDvacantes`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `CATEGORIA` (
+    `IDCategoria` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(191) NOT NULL,
+    `descripcion` VARCHAR(191) NULL,
+    `vacante` INTEGER NOT NULL,
+
+    PRIMARY KEY (`IDCategoria`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `DOCUMENTOVERIFICACION` (
+    `id_docver` INTEGER NOT NULL AUTO_INCREMENT,
+    `archivo` VARCHAR(191) NOT NULL,
+    `fechadecarga` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `IDAdmin` INTEGER NULL,
+    `id_empresa` INTEGER NOT NULL,
+
+    PRIMARY KEY (`id_docver`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `NOTIFICACION` (
+    `id_not` INTEGER NOT NULL AUTO_INCREMENT,
+    `fecha` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `tipo` VARCHAR(191) NULL,
+    `tipo_destinatario` VARCHAR(191) NULL,
+    `mensaje` VARCHAR(191) NOT NULL,
+    `estado` VARCHAR(191) NOT NULL DEFAULT 'no_leida',
+    `id_admin` INTEGER NULL,
+
+    PRIMARY KEY (`id_not`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `NOTIFICACION_POSTULANTE` (
+    `id_not` INTEGER NOT NULL,
+    `id_postulante` INTEGER NOT NULL,
+    `fecha` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `mensaje` VARCHAR(191) NULL,
+    `estado` VARCHAR(191) NOT NULL DEFAULT 'no_leida',
+
+    PRIMARY KEY (`id_not`, `id_postulante`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `NOTIFICACION_EMPRESA` (
+    `id_not` INTEGER NOT NULL,
+    `id_empresa` INTEGER NOT NULL,
+    `fecha` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `mensaje` VARCHAR(191) NULL,
+    `estado` VARCHAR(191) NOT NULL DEFAULT 'no_leida',
+
+    PRIMARY KEY (`id_not`, `id_empresa`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `NOTIFICACION_ADMIN` (
+    `id_not` INTEGER NOT NULL,
+    `IDAdmin` INTEGER NOT NULL,
+    `tipo` VARCHAR(191) NULL,
+    `tipo_destinatario` VARCHAR(191) NULL,
+    `mensaje` VARCHAR(191) NULL,
+    `estado` VARCHAR(191) NOT NULL DEFAULT 'no_leida',
+
+    PRIMARY KEY (`id_not`, `IDAdmin`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `CERTIFICADO` ADD CONSTRAINT `CERTIFICADO_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `EXPERIENCIA` ADD CONSTRAINT `EXPERIENCIA_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `POSTULANTE` ADD CONSTRAINT `POSTULANTE_id_cv_fkey` FOREIGN KEY (`id_cv`) REFERENCES `CV`(`ID_CV`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `FORMACION` ADD CONSTRAINT `FORMACION_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `HABILIDAD` ADD CONSTRAINT `HABILIDAD_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `POSTULACION` ADD CONSTRAINT `POSTULACION_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `POSTULACION` ADD CONSTRAINT `POSTULACION_id_vacante_fkey` FOREIGN KEY (`id_vacante`) REFERENCES `VACANTE`(`IDvacantes`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `POST_VAC_FAV` ADD CONSTRAINT `POST_VAC_FAV_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `POST_VAC_FAV` ADD CONSTRAINT `POST_VAC_FAV_id_vacante_fkey` FOREIGN KEY (`id_vacante`) REFERENCES `VACANTE`(`IDvacantes`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `VACANTE` ADD CONSTRAINT `VACANTE_id_empresa_fkey` FOREIGN KEY (`id_empresa`) REFERENCES `EMPRESA`(`IDEmpresa`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `CATEGORIA` ADD CONSTRAINT `CATEGORIA_vacante_fkey` FOREIGN KEY (`vacante`) REFERENCES `VACANTE`(`IDvacantes`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `DOCUMENTOVERIFICACION` ADD CONSTRAINT `DOCUMENTOVERIFICACION_IDAdmin_fkey` FOREIGN KEY (`IDAdmin`) REFERENCES `ADMIN`(`IDAdmin`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `DOCUMENTOVERIFICACION` ADD CONSTRAINT `DOCUMENTOVERIFICACION_id_empresa_fkey` FOREIGN KEY (`id_empresa`) REFERENCES `EMPRESA`(`IDEmpresa`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION` ADD CONSTRAINT `NOTIFICACION_id_admin_fkey` FOREIGN KEY (`id_admin`) REFERENCES `ADMIN`(`IDAdmin`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION_POSTULANTE` ADD CONSTRAINT `NOTIFICACION_POSTULANTE_id_not_fkey` FOREIGN KEY (`id_not`) REFERENCES `NOTIFICACION`(`id_not`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION_POSTULANTE` ADD CONSTRAINT `NOTIFICACION_POSTULANTE_id_postulante_fkey` FOREIGN KEY (`id_postulante`) REFERENCES `POSTULANTE`(`IdPostulante`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION_EMPRESA` ADD CONSTRAINT `NOTIFICACION_EMPRESA_id_not_fkey` FOREIGN KEY (`id_not`) REFERENCES `NOTIFICACION`(`id_not`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION_EMPRESA` ADD CONSTRAINT `NOTIFICACION_EMPRESA_id_empresa_fkey` FOREIGN KEY (`id_empresa`) REFERENCES `EMPRESA`(`IDEmpresa`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION_ADMIN` ADD CONSTRAINT `NOTIFICACION_ADMIN_id_not_fkey` FOREIGN KEY (`id_not`) REFERENCES `NOTIFICACION`(`id_not`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NOTIFICACION_ADMIN` ADD CONSTRAINT `NOTIFICACION_ADMIN_IDAdmin_fkey` FOREIGN KEY (`IDAdmin`) REFERENCES `ADMIN`(`IDAdmin`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -1,0 +1,298 @@
+// EmpleoNow - Esquema Prisma
+// Base: bd/DB_EmpleNow_1.0.sql  +  migraciones correctivas aprobadas:
+//   - POST_VAC_FAV -> favorito por (postulante, vacante), se elimina VACANTE.id_post_vac_fav
+//   - POSTULACION  -> + id_vacante (NOT NULL) + UNIQUE (id_postulante, id_vacante)
+//   - EXPERIENCIA  -> + id_postulante (1:N) + es_actual + periodo_texto (se quita POSTULANTE.id_experiencia)
+//   - CERTIFICADO  -> + id_postulante (1:N) (se quita POSTULANTE.id_certificado)
+//   - HABILIDAD    -> + nivel
+//   - VACANTE      -> + salario_texto (se conserva salario DECIMAL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Admin {
+  id         Int     @id @default(autoincrement()) @map("IDAdmin")
+  correo     String  @unique @map("Correo")
+  contrasena String  @map("Contrasena")
+  estado     String  @default("activo") @map("Estado")
+
+  documentos     DocumentoVerificacion[]
+  notificaciones Notificacion[]
+  notificacionesAdmin NotificacionAdmin[]
+
+  @@map("ADMIN")
+}
+
+model Empresa {
+  id            Int     @id @default(autoincrement()) @map("IDEmpresa")
+  nombreEmpresa String  @map("nombre_Empresa")
+  nit           String  @unique @map("NIT")
+  telefono      String?
+  correo        String  @unique
+  contrasena    String  @map("contrasena")
+  sector        String?
+  descripcion   String?
+  direccion     String?
+  logo          String? @map("Logo")
+  estado        String  @default("activo") @map("Estado")
+
+  vacantes         Vacante[]
+  documentos       DocumentoVerificacion[]
+  notificaciones   NotificacionEmpresa[]
+
+  @@map("EMPRESA")
+}
+
+model Cv {
+  id       Int     @id @default(autoincrement()) @map("ID_CV")
+  archivo  String  @map("Archivo")
+  nombre   String?
+
+  postulante Postulante?
+
+  @@map("CV")
+}
+
+model Certificado {
+  id       Int    @id @default(autoincrement()) @map("id_certificado")
+  nombre   String @map("nombre")
+  archivo  String @map("archivo")
+  postulanteId Int @map("id_postulante")
+
+  postulante Postulante @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("CERTIFICADO")
+}
+
+model Experiencia {
+  id              Int       @id @default(autoincrement()) @map("IdExperiencia")
+  cargo           String    @map("cargo")
+  empresaAnterior String?   @map("empresaAnterior")
+  descripcion     String?   @map("Descripcion")
+  fechaInicio     DateTime? @map("fecha_inicio")
+  fechaFin        DateTime? @map("Fecha_fin")
+  esActual        Boolean   @default(false) @map("es_actual")
+  periodoTexto    String?   @map("periodo_texto")
+  postulanteId    Int       @map("id_postulante")
+
+  postulante Postulante @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("EXPERIENCIA")
+}
+
+model Postulante {
+  id              Int       @id @default(autoincrement()) @map("IdPostulante")
+  nombres         String    @map("Nombres")
+  apellidos       String    @map("Apellidos")
+  correo          String    @unique @map("Correo")
+  contrasena      String    @map("Contrasena")
+  telefono        String?
+  foto            String?
+  ubicacion       String?   @db.VarChar(512)
+  estado          String    @default("activo") @map("Estado")
+  fechaNacimiento DateTime? @map("Fecha_Nacimiento")
+  fechaCreacion   DateTime  @default(now()) @map("Fecha_creacion")
+  cvId            Int?      @unique @map("id_cv")
+
+  cv             Cv?            @relation(fields: [cvId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  formaciones    Formacion[]
+  habilidades    Habilidad[]
+  experiencias   Experiencia[]
+  certificados   Certificado[]
+  postulaciones  Postulacion[]
+  favoritos      PostVacFav[]
+  notificaciones NotificacionPostulante[]
+
+  @@map("POSTULANTE")
+}
+
+model Formacion {
+  id           Int       @id @default(autoincrement()) @map("IdFormacion")
+  titulo       String    @map("titulo")
+  institucion  String?   @map("institucion")
+  nivelEstudio String?   @map("nivelEstudio")
+  fechaInicio  DateTime? @map("fecha_inicio")
+  fechaGrado   DateTime? @map("fecha_Grado")
+  postulanteId Int       @map("id_postulante")
+
+  postulante Postulante @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("FORMACION")
+}
+
+model Habilidad {
+  id           Int     @id @default(autoincrement()) @map("idHabil")
+  nombre       String  @map("nombre")
+  tipo         String? @map("tipo")
+  nivel        String? @map("nivel")
+  postulanteId Int     @map("id_postulante")
+
+  postulante Postulante @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("HABILIDAD")
+}
+
+model Postulacion {
+  id                     Int      @id @default(autoincrement()) @map("IdPostulacion")
+  tituloPostulacion      String   @map("Titulo_de_postulacion")
+  descripcionPostulacion String?  @map("Descripcion_postulacion")
+  cargoSolicitado        String?  @map("Cargo_solicitado")
+  estado                 String   @default("pendiente") @map("estado")
+  fechaCreacion          DateTime @default(now()) @map("Fecha_creacion")
+  postulanteId           Int      @map("id_postulante")
+  vacanteId              Int      @map("id_vacante")
+
+  postulante Postulante @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  vacante    Vacante    @relation(fields: [vacanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([postulanteId, vacanteId])
+  @@map("POSTULACION")
+}
+
+model PostVacFav {
+  id             Int      @id @default(autoincrement()) @map("id_pos_vac_fav")
+  fechaGuardado  DateTime @default(now()) @map("fec_guardado")
+  notas          String?  @map("notas")
+  postulanteId   Int      @map("id_postulante")
+  vacanteId      Int      @map("id_vacante")
+
+  postulante Postulante @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  vacante    Vacante    @relation(fields: [vacanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([postulanteId, vacanteId])
+  @@map("POST_VAC_FAV")
+}
+
+model Vacante {
+  id                  Int       @id @default(autoincrement()) @map("IDvacantes")
+  cargo               String    @map("cargo")
+  departamento        String?   @map("departamento")
+  descripcion         String?   @map("descripcion")
+  requisitos          String?   @map("requisitos")
+  beneficios          String?   @map("beneficios")
+  ubicacion           String?   @map("ubicacion")
+  salario             Decimal?  @db.Decimal(10, 2) @map("salario")
+  salarioTexto        String?   @map("salario_texto")
+  experiencia         String?   @map("experiencia")
+  modalidad           String?   @map("modalidad")
+  tipoDeEmpleo        String?   @map("tipoDeEmpleo")
+  tipoContrato        String?   @map("tipoContrato")
+  descripcionContrato String?   @map("descripcionContrato")
+  fechaContrato       DateTime? @map("Fecha_contrato")
+  fechaLimite         DateTime? @map("Fecha_limite")
+  fechaPublicacion    DateTime? @default(now()) @map("Fecha_Publicacion")
+  estado              String    @default("activo") @map("Estado")
+  empresaId           Int       @map("id_empresa")
+
+  empresa       Empresa       @relation(fields: [empresaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  postulaciones Postulacion[]
+  favoritos     PostVacFav[]
+  categorias    Categoria[]
+
+  @@map("VACANTE")
+}
+
+model Categoria {
+  id          Int     @id @default(autoincrement()) @map("IDCategoria")
+  nombre      String  @map("nombre")
+  descripcion String? @map("descripcion")
+  vacanteId   Int     @map("vacante")
+
+  vacante Vacante @relation(fields: [vacanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("CATEGORIA")
+}
+
+model DocumentoVerificacion {
+  id            Int      @id @default(autoincrement()) @map("id_docver")
+  archivo       String   @map("archivo")
+  fechadecarga  DateTime @default(now()) @map("fechadecarga")
+  adminId       Int?     @map("IDAdmin")
+  empresaId     Int      @map("id_empresa")
+
+  admin   Admin?  @relation(fields: [adminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("DOCUMENTOVERIFICACION")
+}
+
+model Notificacion {
+  id               Int      @id @default(autoincrement()) @map("id_not")
+  fecha            DateTime @default(now()) @map("fecha")
+  tipo             String?  @map("tipo")
+  tipoDestinatario String?  @map("tipo_destinatario")
+  mensaje          String   @map("mensaje")
+  estado           String   @default("no_leida") @map("estado")
+  adminId          Int?     @map("id_admin")
+
+  admin Admin? @relation(fields: [adminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  notificacionesPostulante NotificacionPostulante[]
+  notificacionesEmpresa    NotificacionEmpresa[]
+  notificacionesAdmin      NotificacionAdmin[]
+
+  @@map("NOTIFICACION")
+}
+
+model NotificacionPostulante {
+  notId        Int      @map("id_not")
+  postulanteId Int      @map("id_postulante")
+  fecha        DateTime @default(now()) @map("fecha")
+  mensaje      String?  @map("mensaje")
+  estado       String   @default("no_leida") @map("estado")
+
+  notificacion Notificacion @relation(fields: [notId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  postulante   Postulante   @relation(fields: [postulanteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([notId, postulanteId])
+  @@map("NOTIFICACION_POSTULANTE")
+}
+
+model NotificacionEmpresa {
+  notId     Int      @map("id_not")
+  empresaId Int      @map("id_empresa")
+  fecha     DateTime @default(now()) @map("fecha")
+  mensaje   String?  @map("mensaje")
+  estado    String   @default("no_leida") @map("estado")
+
+  notificacion Notificacion @relation(fields: [notId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  empresa      Empresa      @relation(fields: [empresaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([notId, empresaId])
+  @@map("NOTIFICACION_EMPRESA")
+}
+
+model NotificacionAdmin {
+  notId            Int     @map("id_not")
+  adminId          Int     @map("IDAdmin")
+  tipo             String? @map("tipo")
+  tipoDestinatario String? @map("tipo_destinatario")
+  mensaje          String? @map("mensaje")
+  estado           String  @default("no_leida") @map("estado")
+
+  notificacion Notificacion @relation(fields: [notId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  admin        Admin        @relation(fields: [adminId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@id([notId, adminId])
+  @@map("NOTIFICACION_ADMIN")
+}
+
+// Tokens de refresco (multi-rol: postulante / empresa / admin). internos.
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique
+  userId    Int
+  role      String
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, role])
+  @@map("REFRESH_TOKEN")
+}

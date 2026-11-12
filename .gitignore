@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+
+# Server runtime
+server/dist/
+server/uploads/
+
+# Secrets and environment
+.env
+.env.*
+!.env.example
+opencode.json
+
+# Tests / tooling
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.vite/
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Artefactos
+*.zip
