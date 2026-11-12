@@ -6,6 +6,8 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+      # Compatibilidad con el driver MariaDB de Prisma 7.
+      - --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-change-me}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-empleonow}
