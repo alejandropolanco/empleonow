@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `postulante` MODIFY `ubicacion` VARCHAR(512) NULL;
+ALTER TABLE `POSTULANTE` MODIFY `ubicacion` VARCHAR(512) NULL;
