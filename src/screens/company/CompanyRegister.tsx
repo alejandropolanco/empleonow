@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import { Turnstile } from "@/components/Turnstile";
-import { ThemeToggle } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 
@@ -104,10 +103,6 @@ export default function CompanyRegister() {
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6 relative">
-        <div className="absolute bottom-8 right-6">
-          <ThemeToggle />
-        </div>
-
         <div className="w-full max-w-sm">
           <div className="flex justify-center mb-6">
             <Logo size="lg" />

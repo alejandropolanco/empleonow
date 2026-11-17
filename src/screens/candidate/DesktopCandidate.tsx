@@ -9,7 +9,7 @@ import {
   OffersIcon,
   ProfileIcon,
 } from "@/components/icons";
-import { ThemeToggle, useTheme } from "@/lib/theme";
+import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { api, ApiError } from "@/lib/api";
 import type { Vacancy, Application, Notification } from "@/lib/data";
@@ -288,8 +288,6 @@ function ProfileSection() {
           <p className="text-sm text-slate-500 mt-0.5">Administra tu experiencia laboral y tus habilidades técnicas y blandas.</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-400 hidden sm:inline">{theme === "dark" ? "Modo oscuro" : "Modo claro"}</span>
-          <ThemeToggle />
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-4 lg:p-8 bg-slate-50">

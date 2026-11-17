@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
-import { ThemeToggle } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 
 /**
@@ -22,7 +21,6 @@ export default function AdminPlaceholder() {
       <header className="flex items-center justify-between px-4 lg:px-8 py-4 border-b border-slate-100 bg-white">
         <Logo size="sm" />
         <div className="flex items-center gap-4">
-          <ThemeToggle />
           <button onClick={doLogout} className="text-xs font-medium text-slate-500 hover:text-red-500">
             Cerrar sesión
           </button>

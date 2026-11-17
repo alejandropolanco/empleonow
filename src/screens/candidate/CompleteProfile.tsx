@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
-import { ThemeToggle } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 import { api, ApiError } from "@/lib/api";
 import { markOnboardingHandled } from "@/lib/onboarding";
@@ -105,10 +104,6 @@ export default function CompleteProfile() {
 
       {/* Right panel / form */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 lg:p-12 relative bg-slate-50 dark:bg-blue-950">
-        {/* Toggle inside top-right corner on mobile, bottom-right on desktop */}
-        <div className="absolute top-4 right-6 lg:bottom-8 lg:top-auto">
-          <ThemeToggle />
-        </div>
 
         <div className="w-full lg:max-w-xl flex flex-col items-center justify-center">
           {/* Mobile Demo bar (hidden on lg) */}
