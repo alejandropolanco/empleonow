@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Logo from "@/components/Logo"
 import { Turnstile } from "@/components/Turnstile"
-import { ThemeToggle, useTheme } from "@/lib/theme"
+import { useTheme } from "@/lib/theme"
 import { useAuth } from "@/lib/auth"
 import { ApiError } from "@/lib/api"
 
@@ -72,11 +72,6 @@ export function SplashScreen() {
         isDark ? "bg-black" : "bg-gradient-to-br from-blue-600 to-blue-800"
       }`}
     >
-      {/* Toggle inside bottom-right — not clipping the edge */}
-      <div className="absolute bottom-8 right-6">
-        <ThemeToggle />
-      </div>
-
       {/* Logo — no white block in dark mode */}
       <div className={`rounded-3xl p-4 shadow-2xl ${isDark ? "" : "bg-white"}`}>
         <Logo size="xl" />
@@ -167,10 +162,6 @@ export function LoginScreen() {
 
       {/* Right panel / form */}
       <div className="flex-1 flex items-center justify-center p-6 relative">
-        {/* Toggle inside bottom-right corner */}
-        <div className="absolute bottom-8 right-6">
-          <ThemeToggle />
-        </div>
 
         <div className="w-full max-w-sm">
           {/* Logo — large, centered, top of form on all viewports */}
@@ -311,10 +302,6 @@ export function RegisterScreen() {
 
       {/* Right panel / form */}
       <div className="flex-1 flex items-center justify-center p-6 relative">
-        {/* Toggle inside bottom-right corner */}
-        <div className="absolute bottom-8 right-6">
-          <ThemeToggle />
-        </div>
 
         <div className="w-full max-w-sm">
           {/* Logo — large, centered, top of form */}

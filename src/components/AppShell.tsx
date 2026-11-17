@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Logo from "@/components/Logo";
-import { ThemeToggle } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
 
 export interface ShellNavItem<T extends string> {
@@ -81,7 +80,6 @@ export function AppShell<T extends string>({
             >
               ← Cerrar sesión
             </button>
-            <ThemeToggle />
           </div>
         </div>
       </aside>
@@ -90,7 +88,6 @@ export function AppShell<T extends string>({
       <header className="lg:hidden flex items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-100 sticky top-0 z-30">
         <Logo size="sm" />
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <button
             onClick={onLogout}
             className="text-xs font-medium text-slate-500 hover:text-red-500"
