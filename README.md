@@ -109,6 +109,40 @@ redirigen a las nuevas para no romper enlaces.
 - Subida de CV: límite 5 MB, validación de **magic bytes** (PDF/DOC/DOCX),
   nombre UUID, almacenamiento en memoria antes de escribir y S3 con SSE AES256.
 
+## Contexto para agentes (Graphify)
+
+El repositorio [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify)
+genera un grafo de conocimiento del código que los agentes pueden consultar en
+vez de recorrer archivos uno por uno. El grafo se genera **en local** y está
+excluido de git (`graphify-out/`), por lo que nada se publica en GitHub.
+
+Requisitos: Python 3.11.5–3.14 y `uv`. Instalación del CLI y el servidor MCP:
+
+```powershell
+uv tool install --python 3.14 "graphifyy[mcp]"
+```
+
+Generación y actualización del grafo (modo solo código, sin llamadas a modelos):
+
+```powershell
+$env:GRAPHIFY_BACKEND = "none"
+graphify extract . --code-only
+graphify cluster-only . --no-label
+# Tras cambiar código:
+graphify update .
+```
+
+`opencode.json` (ignorado por git) registra el servidor MCP local
+`graphify-mcp` apuntando a `graphify-out/graph.json`. Eso expone herramientas
+como `query_graph`, `get_node`, `get_neighbors`, `shortest_path`, `god_nodes` y
+`graph_stats`. Para consultas rápidas fuera del agente:
+
+```powershell
+graphify query "¿cómo se aísla una empresa de otra?"
+graphify path "login" "POSTULANTE"
+graphify explain "registerCompany"
+```
+
 ## Tests
 
 ### API (Vitest + Supertest)
